@@ -765,7 +765,7 @@
             <td>${hp}</td>
             <td>${baseDmg}</td>
             <td>${res.shots}</td>
-            <td>${res.ttkMs.toFixed(1)}</td>
+            <td>${Math.round(res.ttkMs)}</td>
             <td>${note}</td>
           `;
           tbody.appendChild(tr);
