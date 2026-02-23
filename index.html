@@ -695,15 +695,11 @@ function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange
   let html = `
 <table>
   <tr>
-    <th>Range</th>
     <th>HP</th>
-
-    <th>A Shots</th>
-    <th>A TTK (ms)</th>
-
-    <th>B Shots</th>
-    <th>B TTK (ms)</th>
-
+    <th>${gunA.name} STK</th>
+    <th>${gunA.name} TTK (ms)</th>
+    <th>${gunB.name} STK</th>
+    <th>${gunB.name} TTK (ms)</th>
     <th>Winner</th>
   </tr>
 `;
@@ -721,36 +717,42 @@ function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange
     const prefix = `R${i + 1} (${prevA}–${rangeA.max}m, ${rangeA.damage} dmg)`;
 
     hpList.forEach(hp => {
-      const resA = computeForRangeAndHP(gunA, rangeA, hp, pattern);
-      const resB = computeForRangeAndHP(gunB, rangeB, hp, pattern);
+      const resultA = computeForRangeAndHP(gunA, range, hp, patternA);
+const resultB = computeForRangeAndHP(gunB, range, hp, patternB);
 
-      let winner;
+let winner;
 
 if (resultA.ttkMs < resultB.ttkMs) {
-  winner = "A";
+  winner = gunA.name;
 } else if (resultB.ttkMs < resultA.ttkMs) {
-  winner = "B";
+  winner = gunB.name;
 } else {
   winner = "Tie";
 }
 
-      html += `
+let winnerClass;
+
+if (winner === gunA.name) {
+  winnerClass = "winner-a";
+} else if (winner === gunB.name) {
+  winnerClass = "winner-b";
+} else {
+  winnerClass = "winner-tie";
+}
+
+html += `
   <tr>
-    <td>${range.label}</td>
     <td>${hp}</td>
 
     <td>${resultA.shots}</td>
-    <td>${resultA.ttkMs}</td>
+    <td>${resultA.ttkMs} ms</td>
 
     <td>${resultB.shots}</td>
-    <td>${resultB.ttkMs}</td>
+    <td>${resultB.ttkMs} ms</td>
 
-    <td>${winner}</td>
+    <td class="${winnerClass}">${winner}</td>
   </tr>
 `;
-
-    });
-  }
 
   html += `</tbody></table></div>`;
   return html;
