@@ -589,16 +589,26 @@ function computeForRangeAndHP(gun, range, hp, pattern) {
    RESULTS TABLE
 ------------------------------ */
 function buildResultsTableForGun(gun, hpList, pattern, titleText) {
-  let html = `<h3>${titleText}</h3>`;
+  let html = `<h3>${titleText}: ${gun.name}</h3>`;
   html += `<div class="table-wrapper"><table><thead><tr>
-    <th>HP</th><th>Shots</th><th>TTK (ms)</th>
+    <th>Range</th>
+    <th>Base Damage</th>
+    <th>HP</th>
+    <th>Shots</th>
+    <th>TTK (ms)</th>
   </tr></thead><tbody>`;
 
-  gun.ranges.forEach(range => {
+  gun.ranges.forEach((range, i) => {
+    const prevMax = i === 0 ? 0 : gun.ranges[i - 1].max;
+    const prefix = `R${i + 1} (${prevMax}–${range.max}m)`;
+
     hpList.forEach(hp => {
       const res = computeForRangeAndHP(gun, range, hp, pattern);
+
       html += `
         <tr>
+          <td>${prefix}</td>
+          <td>${range.damage}</td>
           <td>${hp}</td>
           <td>${res.shots}</td>
           <td>${Math.round(res.ttkMs)}</td>
@@ -610,6 +620,7 @@ function buildResultsTableForGun(gun, hpList, pattern, titleText) {
   html += `</tbody></table></div>`;
   return html;
 }
+  
 function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange) {
   let html = `
   <h3>Comparison: Gun A vs Gun B</h3>
