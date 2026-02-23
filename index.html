@@ -275,6 +275,7 @@
 
 <button onclick="calculateAll()">Calculate</button>
 <div id="results"></div>
+<button type="button" onclick="refreshResults()">Refresh Results</button>
   </div>
 
 <script>
@@ -532,6 +533,50 @@ function refreshBreakdown() {
   div.innerHTML = html;
 }
 
+function refreshResults() {
+  const gun = readGunFromForm();
+  const hpValues = [100, 150, 200, 250, 300];
+
+  let html = `<table>
+    <tr>
+      <th>Range</th>
+      <th>Base Dmg</th>
+      <th>Final Dmg</th>
+      <th>HP</th>
+      <th>Shots</th>
+      <th>TTK (ms)</th>
+    </tr>
+  `;
+
+  gun.ranges.forEach((range, i) => {
+    const rangeLabel = `R${i+1}`;
+    const base = range.damage;
+
+    // choose a multiplier (upper body for now)
+    const mult = gun.multipliers.upper;
+    const finalDamage = Math.round(base * mult);
+
+    hpValues.forEach(hp => {
+      const shots = Math.ceil(hp / finalDamage);
+      const ttk = (shots - 1) * gun.fireInterval;
+
+      html += `
+        <tr>
+          <td>${rangeLabel}</td>
+          <td>${base}</td>
+          <td>${finalDamage}</td>
+          <td>${hp}</td>
+          <td>${shots}</td>
+          <td>${Math.round(ttk)}</td>
+        </tr>
+      `;
+    });
+  });
+
+  html += `</table>`;
+  document.getElementById("results").innerHTML = html;
+}
+
 /* ------------------------------
    PATTERN HANDLING
 ------------------------------ */
@@ -573,6 +618,7 @@ function computeForRangeAndHP(gun, range, hp, pattern) {
 
   let remaining = hp;
   let shots = 0;
+  let lastDamage = 0; // 
 
   function applyShots(count, dmg) {
     let used = 0;
@@ -580,6 +626,7 @@ function computeForRangeAndHP(gun, range, hp, pattern) {
       remaining -= dmg;
       used++;
       shots++;
+      lastDamage = dmg; // 
     }
   }
 
@@ -590,18 +637,23 @@ function computeForRangeAndHP(gun, range, hp, pattern) {
   if (remaining > 0 && pattern.larm) applyShots(pattern.larm, base * m.larm);
   if (remaining > 0 && pattern.legs) applyShots(pattern.legs, base * m.legs);
 
+  // fill remaining shots with upper-body
   while (remaining > 0) {
-    remaining -= base * m.upper;
+    const dmg = base * m.upper;
+    remaining -= dmg;
     shots++;
+    lastDamage = dmg; // 
   }
 
   const ttkMs = (shots - 1) * gun.fireInterval;
 
   return {
     shots,
-    ttkMs
+    ttkMs,
+    finalDamage: Math.round(lastDamage) // 
   };
 }
+
 
 /* ------------------------------
    RESULTS TABLE
