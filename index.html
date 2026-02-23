@@ -672,8 +672,7 @@
         totalDamage += baseDmg * mults.upper;
       }
 
-      const ttkSeconds = (totalShots - 1) * fireInterval;
-      const ttkMs = ttkSeconds * 1000;
+      const ttkMs = (totalShots - 1) * fireInterval;
 
       return {
         shots: totalShots,
