@@ -267,8 +267,14 @@
   <!-- Results -->
   <div class="box">
     <h2>Results</h2>
-    <button onclick="calculateAll()">Calculate</button>
-    <div id="results"></div>
+
+<label>Range to calculate:</label>
+<select id="rangeSelect">
+  <option value="all">All ranges</option>
+</select>
+
+<button onclick="calculateAll()">Calculate</button>
+<div id="results"></div>
   </div>
 
 <script>
@@ -316,6 +322,17 @@ function refreshGunSelects() {
 
   loadGunToForm(guns[currentGunIndex]);
 }
+  
+function refreshRangeSelect(gun) {
+  const sel = document.getElementById("rangeSelect");
+  sel.innerHTML = `<option value="all">All ranges</option>`;
+
+  gun.ranges.forEach((r, i) => {
+    const prevMax = i === 0 ? 0 : gun.ranges[i - 1].max;
+    const prefix = `R${i + 1} (${prevMax}–${r.max}m, ${r.damage} dmg)`;
+    sel.innerHTML += `<option value="${i}">${prefix}</option>`;
+  });
+}
 
 function loadSelectedGun() {
   const idx = parseInt(document.getElementById("gunSelect").value);
@@ -341,6 +358,7 @@ function loadGunToForm(gun) {
   gun.ranges.forEach(r => addRangeRow(r.max, r.damage));
 
   refreshBreakdown();
+  refreshRangeSelect(gun);
 }
 
 function readGunFromForm() {
@@ -402,6 +420,7 @@ function saveCurrentGun() {
   saveGunsToStorage();
   refreshGunSelects();
   alert("Gun saved.");
+  refreshRangeSelect(gun);
 }
 
 function deleteCurrentGun() {
@@ -427,6 +446,8 @@ function clearGunForm() {
   document.getElementById("ranges").innerHTML = "";
   addRangeRow();
   document.getElementById("breakdown").innerHTML = "";
+  
+  refreshRangeSelect(readGunFromForm());
 }
 
 /* ------------------------------
@@ -589,6 +610,61 @@ function buildResultsTableForGun(gun, hpList, pattern, titleText) {
   html += `</tbody></table></div>`;
   return html;
 }
+function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange) {
+  let html = `
+  <h3>Comparison: Gun A vs Gun B</h3>
+  <div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Range</th>
+        <th>Base Dmg</th>
+        <th>HP</th>
+        <th>A Shots</th>
+        <th>A TTK (ms)</th>
+        <th>B Shots</th>
+        <th>B TTK (ms)</th>
+        <th>Winner</th>
+      </tr>
+    </thead>
+    <tbody>
+  `;
+
+  const maxRanges = Math.max(gunA.ranges.length, gunB.ranges.length);
+
+  for (let i = 0; i < maxRanges; i++) {
+    if (selectedRange !== "all" && parseInt(selectedRange) !== i) continue;
+
+    const rangeA = gunA.ranges[i] || gunA.ranges[gunA.ranges.length - 1];
+    const rangeB = gunB.ranges[i] || gunB.ranges[gunB.ranges.length - 1];
+
+    const prevA = i === 0 ? 0 : gunA.ranges[i - 1].max;
+    const prefix = `R${i + 1} (${prevA}–${rangeA.max}m, ${rangeA.damage} dmg)`;
+
+    hpList.forEach(hp => {
+      const resA = computeForRangeAndHP(gunA, rangeA, hp, pattern);
+      const resB = computeForRangeAndHP(gunB, rangeB, hp, pattern);
+
+      let winner = "Tie";
+      if (resA.ttkMs < resB.ttkMs) winner = "A";
+      else if (resB.ttkMs < resA.ttkMs) winner = "B";
+
+      html += `
+        <tr>
+          <td>${prefix}</td>
+          <td>${rangeA.damage}</td>
+          <td>${hp}</td>
+          <td>${resA.shots}</td>
+          <td>${Math.round(resB.ttkMs)}</td>
+          <td>${winner}</td>
+        </tr>
+      `;
+    });
+  }
+
+  html += `</tbody></table></div>`;
+  return html;
+}
 
 /* ------------------------------
    MAIN CALCULATION
@@ -608,12 +684,13 @@ function calculateAll() {
   let html = buildResultsTableForGun(gunA, hpPresets, pattern, "Gun A");
 
   if (document.getElementById("compareToggle").value === "on") {
-    const idx = parseInt(document.getElementById("compareSelect").value);
-    if (!isNaN(idx) && idx >= 0 && idx < guns.length) {
-      const gunB = guns[idx];
-      html += buildResultsTableForGun(gunB, hpPresets, pattern, "Gun B");
-    }
+  const idx = parseInt(document.getElementById("compareSelect").value);
+  if (!isNaN(idx) && idx >= 0 && idx < guns.length) {
+    const gunB = guns[idx];
+    const selectedRange = document.getElementById("rangeSelect").value;
+    html += buildCombinedComparisonTable(gunA, gunB, hpPresets, pattern, selectedRange);
   }
+}
 
   document.getElementById("results").innerHTML = html;
 }
