@@ -693,23 +693,21 @@ function buildResultsTableForGun(gun, hpList, pattern, titleText) {
   
 function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange) {
   let html = `
-  <h3>Comparison: Gun A vs Gun B</h3>
-  <div class="table-wrapper">
-  <table>
-    <thead>
-      <tr>
-        <th>Range</th>
-        <th>Base Dmg</th>
-        <th>HP</th>
-        <th>A Shots</th>
-        <th>A TTK (ms)</th>
-        <th>B Shots</th>
-        <th>B TTK (ms)</th>
-        <th>Winner</th>
-      </tr>
-    </thead>
-    <tbody>
-  `;
+<table>
+  <tr>
+    <th>Range</th>
+    <th>HP</th>
+
+    <th>A Shots</th>
+    <th>A TTK (ms)</th>
+
+    <th>B Shots</th>
+    <th>B TTK (ms)</th>
+
+    <th>Winner</th>
+  </tr>
+`;
+
 
   const maxRanges = Math.max(gunA.ranges.length, gunB.ranges.length);
 
@@ -726,13 +724,19 @@ function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange
       const resA = computeForRangeAndHP(gunA, rangeA, hp, pattern);
       const resB = computeForRangeAndHP(gunB, rangeB, hp, pattern);
 
-      let winner = "Tie";
-      if (resA.ttkMs < resB.ttkMs) winner = "A";
-      else if (resB.ttkMs < resA.ttkMs) winner = "B";
+      let winner;
+
+if (resultA.ttkMs < resultB.ttkMs) {
+  winner = "A";
+} else if (resultB.ttkMs < resultA.ttkMs) {
+  winner = "B";
+} else {
+  winner = "Tie";
+}
 
       html += `
   <tr>
-    <td>${rangeLabel}</td>
+    <td>${range.label}</td>
     <td>${hp}</td>
 
     <td>${resultA.shots}</td>
@@ -744,6 +748,7 @@ function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange
     <td>${winner}</td>
   </tr>
 `;
+
     });
   }
 
