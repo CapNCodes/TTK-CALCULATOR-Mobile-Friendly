@@ -187,6 +187,10 @@
         <label>Lower arm</label>
         <input id="multLArm" type="number" step="0.01" value="1.0">
       </div>
+      <div>
+        <label>Legs</label>
+        <input id="multLegs" type="number" step="0.01" value="1.0">
+      </div>
     </div>
 
     <h3>Damage ranges</h3>
@@ -259,6 +263,7 @@
       <option value="all_head">All Head</option>
       <option value="all_upper">All Upper Body</option>
       <option value="all_lower">All Lower Body</option>
+      <option value="all_legs">All Legs</option>
       <option value="one_head_rest_upper">1 Head, rest Upper Body</option>
       <option value="two_head_rest_upper">2 Head, rest Upper Body</option>
       <option value="one_head_one_uarm_rest_upper">1 Head + 1 Upper Arm + rest Upper Body</option>
@@ -286,6 +291,10 @@
         <div>
           <label>Lower arm shots</label>
           <input id="c_larm" type="number" min="0" value="0">
+        </div>
+        <div>
+          <label>Leg shots</label>
+          <input id="c_legs" type="number" min="0" value="0">
         </div>
       </div>
       <div class="small-note">
@@ -384,6 +393,7 @@
       document.getElementById("multLower").value = gun.multipliers.lower;
       document.getElementById("multUArm").value = gun.multipliers.uarm;
       document.getElementById("multLArm").value = gun.multipliers.larm;
+      document.getElementById("multLegs").value = gun.multipliers.legs;
 
       const rangesDiv = document.getElementById("ranges");
       rangesDiv.innerHTML = "";
@@ -402,6 +412,7 @@
       const multLower = parseFloat(document.getElementById("multLower").value) || 1.0;
       const multUArm = parseFloat(document.getElementById("multUArm").value) || 1.0;
       const multLArm = parseFloat(document.getElementById("multLArm").value) || 1.0;
+      const multLegs = parseFloat(document.getElementById("multLegs").value) || 1.0;
 
       const rangesDiv = document.getElementById("ranges");
       const rows = rangesDiv.querySelectorAll(".range-row");
@@ -424,7 +435,8 @@
           upper: multUpper,
           lower: multLower,
           uarm: multUArm,
-          larm: multLArm
+          larm: multLArm,
+          legs: multLegs
         },
         ranges
       };
@@ -486,6 +498,7 @@
       document.getElementById("multLower").value = "1.0";
       document.getElementById("multUArm").value = "1.0";
       document.getElementById("multLArm").value = "1.0";
+      document.getElementById("multLegs").value = "1.0";
 
       document.getElementById("ranges").innerHTML = "";
       addRangeRow();
@@ -539,6 +552,7 @@
           <th>Lower</th>
           <th>U-Arm</th>
           <th>L-Arm</th>
+          <th>Legs</th>
         </tr>
       `;
       table.appendChild(thead);
@@ -554,6 +568,7 @@
         const lower = base * gun.multipliers.lower;
         const uarm = base * gun.multipliers.uarm;
         const larm = base * gun.multipliers.larm;
+        const legs = base * gun.multipliers.legs;
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -564,6 +579,7 @@
           <td>${lower.toFixed(1)}</td>
           <td>${uarm.toFixed(1)}</td>
           <td>${larm.toFixed(1)}</td>
+          <td>${legs.toFixed(1)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -583,24 +599,27 @@
     function getPatternShots(pattern, stk) {
       switch(pattern) {
         case "all_head":
-          return { head: stk, upper: 0, lower: 0, uarm: 0, larm: 0 };
+          return { head: stk, upper: 0, lower: 0, uarm: 0, larm: 0, legs: 0 };
         case "all_upper":
-          return { head: 0, upper: stk, lower: 0, uarm: 0, larm: 0 };
+          return { head: 0, upper: stk, lower: 0, uarm: 0, larm: 0, legs: 0 };
         case "all_lower":
-          return { head: 0, upper: 0, lower: stk, uarm: 0, larm: 0 };
+          return { head: 0, upper: 0, lower: stk, uarm: 0, larm: 0, legs: 0 };
+        case "all_legs":
+          return { head: 0, upper: 0, lower: 0, uarm: 0, larm: 0, legs: stk };
         case "one_head_rest_upper":
-          return { head: 1, upper: Math.max(stk - 1, 0), lower: 0, uarm: 0, larm: 0 };
+          return { head: 1, upper: Math.max(stk - 1, 0), lower: 0, uarm: 0, larm: 0, legs: 0 };
         case "two_head_rest_upper":
-          return { head: 2, upper: Math.max(stk - 2, 0), lower: 0, uarm: 0, larm: 0 };
+          return { head: 2, upper: Math.max(stk - 2, 0), lower: 0, uarm: 0, larm: 0, legs: 0 };
         case "one_head_one_uarm_rest_upper":
-          return { head: 1, upper: Math.max(stk - 2, 0), lower: 0, uarm: 1, larm: 0 };
+          return { head: 1, upper: Math.max(stk - 2, 0), lower: 0, uarm: 1, larm: 0, legs: 0 };
         case "custom":
           return {
             head: parseInt(document.getElementById("c_head").value) || 0,
             upper: parseInt(document.getElementById("c_upper").value) || 0,
             lower: parseInt(document.getElementById("c_lower").value) || 0,
             uarm: parseInt(document.getElementById("c_uarm").value) || 0,
-            larm: parseInt(document.getElementById("c_larm").value) || 0
+            larm: parseInt(document.getElementById("c_larm").value) || 0,
+            legs: parseInt(document.getElementById("c_legs").value) || 0
           };
       }
     }
@@ -622,6 +641,7 @@
       let baseMult = mults.upper;
       if (pattern === "all_head") baseMult = mults.head;
       if (pattern === "all_lower") baseMult = mults.lower;
+      if (pattern === "all_legs") baseMult = mults.legs;
 
       const baseHitDmg = baseDmg * baseMult;
       if (baseHitDmg <= 0) return null;
@@ -637,12 +657,13 @@
           sh.upper * baseDmg * mults.upper +
           sh.lower * baseDmg * mults.lower +
           sh.uarm * baseDmg * mults.uarm +
-          sh.larm * baseDmg * mults.larm
+          sh.larm * baseDmg * mults.larm +
+          sh.legs * baseDmg * mults.legs
         );
       }
 
       let totalDamage = totalDamageFromShots(shots);
-      let totalShots = shots.head + shots.upper + shots.lower + shots.uarm + shots.larm;
+      let totalShots = shots.head + shots.upper + shots.lower + shots.uarm + shots.larm + shots.legs;
       let extraShots = 0;
 
       while (totalDamage < hp) {
