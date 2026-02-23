@@ -358,6 +358,7 @@ function loadGunToForm(gun) {
   gun.ranges.forEach(r => addRangeRow(r.max, r.damage));
 
   refreshBreakdown();
+  const updatedGun = readGunFromForm();
   refreshRangeSelect(gun);
 }
 
@@ -420,6 +421,7 @@ function saveCurrentGun() {
   saveGunsToStorage();
   refreshGunSelects();
   alert("Gun saved.");
+  const updatedGun = readGunFromForm();
   refreshRangeSelect(gun);
 }
 
@@ -436,18 +438,21 @@ function deleteCurrentGun() {
 
 function clearGunForm() {
   document.getElementById("gunName").value = "";
-  document.getElementById("fireInterval").value = "80";
-  document.getElementById("multHead").value = "1.3";
-  document.getElementById("multUpper").value = "1.1";
+  document.getElementById("fireInterval").value = "0";
+  document.getElementById("multHead").value = "1.0";
+  document.getElementById("multUpper").value = "1.0";
   document.getElementById("multLower").value = "1.0";
   document.getElementById("multUArm").value = "1.0";
   document.getElementById("multLArm").value = "1.0";
   document.getElementById("multLegs").value = "1.0";
+
   document.getElementById("ranges").innerHTML = "";
-  addRangeRow();
+  addRangeRow(); // must happen BEFORE reading the gun
+
   document.getElementById("breakdown").innerHTML = "";
-  
-  refreshRangeSelect(readGunFromForm());
+
+  const gun = readGunFromForm(); // read AFTER the row exists
+  refreshRangeSelect(gun);       // now safe
 }
 
 /* ------------------------------
