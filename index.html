@@ -364,7 +364,8 @@ function loadGunToForm(gun) {
 
 function readGunFromForm() {
   const name = document.getElementById("gunName").value.trim();
-  const fireInterval = parseFloat(document.getElementById("fireInterval").value) || 80;
+  let fireInterval = parseFloat(document.getElementById("fireInterval").value);
+if (isNaN(fireInterval) || fireInterval <= 0) fireInterval = 80;
 
   const multHead = parseFloat(document.getElementById("multHead").value) || 1.0;
   const multUpper = parseFloat(document.getElementById("multUpper").value) || 1.0;
