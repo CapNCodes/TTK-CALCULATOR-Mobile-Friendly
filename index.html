@@ -703,7 +703,9 @@ function calculateAll() {
   }
 }
 
-  document.getElementById("results").innerHTML = html;
+  const resultsDiv = document.getElementById("results");
+resultsDiv.innerHTML = "";
+resultsDiv.insertAdjacentHTML("beforeend", html);
 }
 
 /* ------------------------------
