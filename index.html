@@ -464,9 +464,14 @@ function addRangeRow(maxVal = "", dmgVal = "") {
   row.innerHTML = `
     <label>Max (m): <input type="number" class="range-max" value="${maxVal}"></label>
     <label>Dmg: <input type="number" class="range-dmg" value="${dmgVal}"></label>
-    <button class="secondary" onclick="this.parentElement.remove()">X</button>
+    <button class="secondary" onclick="removeRangeRow(this)">X</button>
   `;
   document.getElementById("ranges").appendChild(row);
+
+  // IMPORTANT: update UI after adding a row
+  const gun = readGunFromForm();
+  refreshRangeSelect(gun);
+  refreshBreakdown();
 }
 
 /* ------------------------------
