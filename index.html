@@ -731,15 +731,19 @@ function buildCombinedComparisonTable(gunA, gunB, hpList, pattern, selectedRange
       else if (resB.ttkMs < resA.ttkMs) winner = "B";
 
       html += `
-        <tr>
-          <td>${prefix}</td>
-          <td>${rangeA.damage}</td>
-          <td>${hp}</td>
-          <td>${resA.shots}</td>
-          <td>${Math.round(resB.ttkMs)}</td>
-          <td>${winner}</td>
-        </tr>
-      `;
+  <tr>
+    <td>${rangeLabel}</td>
+    <td>${hp}</td>
+
+    <td>${resultA.shots}</td>
+    <td>${resultA.ttkMs}</td>
+
+    <td>${resultB.shots}</td>
+    <td>${resultB.ttkMs}</td>
+
+    <td>${winner}</td>
+  </tr>
+`;
     });
   }
 
