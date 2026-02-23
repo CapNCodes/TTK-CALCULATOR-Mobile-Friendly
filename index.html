@@ -160,8 +160,8 @@
         <input id="gunName" type="text" placeholder="e.g. Type 25">
       </div>
       <div>
-        <label>Fire interval (ms)</label>
-<input id="fireInterval" type="number" step="1" value="80">
+        <label>Fire interval (ms)
+        <input id="fireInterval" type="number" step="0.001" value="80">>
       </div>
     </div>
 
@@ -406,8 +406,7 @@
 
     function readGunFromForm() {
       const name = document.getElementById("gunName").value.trim();
-      const fireIntervalMs = parseFloat(document.getElementById("fireInterval").value) || 80;
-const fireInterval = fireIntervalMs / 1000; // convert ms → seconds
+      const fireInterval = parseFloat(document.getElementById("fireInterval").value) || 0.08;
       const multHead = parseFloat(document.getElementById("multHead").value) || 1.0;
       const multUpper = parseFloat(document.getElementById("multUpper").value) || 1.0;
       const multLower = parseFloat(document.getElementById("multLower").value) || 1.0;
@@ -493,7 +492,7 @@ const fireInterval = fireIntervalMs / 1000; // convert ms → seconds
 
     function clearGunForm() {
       document.getElementById("gunName").value = "";
-      document.getElementById("fireInterval").value = "80";
+      document.getElementById("fireInterval").value = "0.080";
       document.getElementById("multHead").value = "1.3";
       document.getElementById("multUpper").value = "1.1";
       document.getElementById("multLower").value = "1.0";
