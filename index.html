@@ -460,14 +460,23 @@ function clearGunForm() {
 /* ------------------------------
    RANGE ROWS
 ------------------------------ */
-function addRangeRow(maxVal = "", dmgVal = "") {
-  const row = document.createElement("div");
-  row.className = "range-row";
-  row.innerHTML = `
-    <label>Max (m): <input type="number" class="range-max" value="${maxVal}"></label>
-    <label>Dmg: <input type="number" class="range-dmg" value="${dmgVal}"></label>
-    <<button class="secondary" onclick="removeRangeRow(this)">X</button>
+function addRangeRow() {
+  const container = document.getElementById("ranges");
+
+  const div = document.createElement("div");
+  div.className = "range-row";
+
+  div.innerHTML = `
+    <input type="number" class="range-start" placeholder="Start">
+    <input type="number" class="range-end" placeholder="End">
+    <input type="number" class="range-damage" placeholder="Damage">
+    <button type="button" onclick="this.parentElement.remove()">X</button>
   `;
+
+  container.appendChild(div);
+  refreshRangeSelect();
+}
+
   document.getElementById("ranges").appendChild(row);
 
   // IMPORTANT: update UI after adding a row
